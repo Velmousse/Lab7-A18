@@ -7,11 +7,16 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 
 public class Main extends Application {
     private Stage mainStage = new Stage();
     private BorderPane bp;
+
+    private BufferedReader entree;
 
     public static void main(String[] args) {
         launch(args);
@@ -45,8 +50,8 @@ public class Main extends Application {
         MenuItem png = new MenuItem("PNG");
         png.setOnAction(event -> export(1));
 
-        MenuItem tiff = new MenuItem("TIFF");
-        tiff.setOnAction(event -> export(0));
+        MenuItem tiff = new MenuItem("JPEG");
+        tiff.setOnAction(event -> export(2));
 
         importer.getItems().addAll(lignes, regions, barres);
         exporter.getItems().addAll(png, tiff);
@@ -59,6 +64,9 @@ public class Main extends Application {
         fc.setTitle("Veuillez sélectionner un fichier");
         fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Fichiers DAT", "*.dat"));
         File fichier = fc.showOpenDialog(mainStage);
+
+        try { entree = new BufferedReader(new FileReader(fichier)); }
+        catch (FileNotFoundException e) { }
 
         switch (typeNumber) {
             case 1:
@@ -76,6 +84,22 @@ public class Main extends Application {
     private void export(int type) {
         FileChooser fc = new FileChooser();
         fc.setTitle("Enregistrer sous");
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Fichier image", "*.*"));
+        fc.showSaveDialog(mainStage);
+
+        switch (type) {
+            case 1:
+
+
+                break;
+
+            case 2:
+
+        }
+
+    }
+
+    private void readData() {
 
     }
 }
