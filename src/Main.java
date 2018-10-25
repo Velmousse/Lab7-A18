@@ -99,7 +99,7 @@ public class Main extends Application {
         yAxis.setLabel("Température");
 
         for (int i = 0; i < x.length; i++)
-            series.getData().add(new XYChart.Data(x[i], Float.parseFloat(y[i])));
+            series.getData().add(new XYChart.Data<>(x[i], Float.parseFloat(y[i])));
 
         switch (typeNumber) {
             case 1: chart = new LineChart<>(xAxis, yAxis); break;
