@@ -62,11 +62,11 @@ public class Main extends Application {
         MenuItem png = new MenuItem("PNG");
         png.setOnAction(event -> export("png"));
 
-        MenuItem tiff = new MenuItem("GIF");
-        tiff.setOnAction(event -> export("gif"));
+        MenuItem gif = new MenuItem("GIF");
+        gif.setOnAction(event -> export("gif"));
 
         importer.getItems().addAll(lignes, regions, barres);
-        exporter.getItems().addAll(png, tiff);
+        exporter.getItems().addAll(png, gif);
 
         return new MenuBar(importer, exporter);
     }
