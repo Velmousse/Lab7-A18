@@ -1,27 +1,27 @@
 import javafx.application.Application;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.chart.*;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.util.ArrayList;
+import javax.imageio.ImageIO;
+import java.io.*;
+import java.nio.file.Files;
+import java.util.List;
 
 public class Main extends Application {
     private Stage mainStage = new Stage();
     private BorderPane bp;
+    private HBox hbox;
 
     private BufferedReader entree;
 
@@ -32,7 +32,7 @@ public class Main extends Application {
     public void start(Stage stage) {
         stage = mainStage;
 
-        HBox hbox = new HBox();
+        hbox = new HBox();
         hbox.setAlignment(Pos.CENTER);
 
         bp = new BorderPane();
@@ -60,10 +60,10 @@ public class Main extends Application {
         barres.setOnAction(event -> setGraphique(3, box));
 
         MenuItem png = new MenuItem("PNG");
-        png.setOnAction(event -> export(1));
+        png.setOnAction(event -> export("png"));
 
-        MenuItem tiff = new MenuItem("JPEG");
-        tiff.setOnAction(event -> export(2));
+        MenuItem tiff = new MenuItem("GIF");
+        tiff.setOnAction(event -> export("gif"));
 
         importer.getItems().addAll(lignes, regions, barres);
         exporter.getItems().addAll(png, tiff);
@@ -77,10 +77,19 @@ public class Main extends Application {
         fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Fichiers DAT", "*.dat"));
         File fichier = fc.showOpenDialog(mainStage);
 
+        List<String> content = null;
+
         try { entree = new BufferedReader(new FileReader(fichier)); }
         catch (FileNotFoundException e) { System.out.println("Impossible de trouver le fichier"); }
 
-        ArrayList<String> content = null;
+        try { content = Files.readAllLines(fichier.toPath()); }
+        catch (IOException e) { System.out.println("Impossible de charger le fichier"); }
+
+        String[] x = content.get(0).split(",");
+        String[] y = content.get(1).split(",");
+
+        XYChart.Series series = new XYChart.Series();
+        series.setName("Données");
 
         XYChart chart = null;
 
@@ -89,40 +98,30 @@ public class Main extends Application {
         xAxis.setLabel("Mois");
         yAxis.setLabel("Température");
 
+        for (int i = 0; i < x.length; i++)
+            series.getData().add(new XYChart.Data(x[i], Float.parseFloat(y[i])));
+
         switch (typeNumber) {
-            case 1:
-                chart = new LineChart<String, Number>(xAxis, yAxis);
-                break;
-
-            case 2:
-
-                break;
-
-            case 3:
+            case 1: chart = new LineChart<>(xAxis, yAxis); break;
+            case 2: chart = new AreaChart<>(xAxis, yAxis); break;
+            case 3: chart = new BarChart<>(xAxis, yAxis);
         }
 
+        chart.setTitle("Températures moyennes");
+        chart.getData().add(series);
+        box.getChildren().clear();
         box.getChildren().add(chart);
     }
 
-    private void export(int type) {
+    private void export(String format) {
         FileChooser fc = new FileChooser();
         fc.setTitle("Enregistrer sous");
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Fichier image", "*.*"));
-        fc.showSaveDialog(mainStage);
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Fichier image", "*." + format));
+        File fichier = fc.showSaveDialog(mainStage);
 
-        switch (type) {
-            case 1:
+        WritableImage image = hbox.snapshot(new SnapshotParameters(), null);
 
-
-                break;
-
-            case 2:
-
+        try { ImageIO.write(SwingFXUtils.fromFXImage(image, null), format, fichier); }
+        catch (IOException e) { e.printStackTrace(); }
         }
-
     }
-
-    private void readData() {
-
-    }
-}
